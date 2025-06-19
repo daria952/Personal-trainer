@@ -144,12 +144,25 @@ main {
 }
 
 /* ====== Индикаторы тренировок ====== */
+
+.dot-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding-top: 15px;
+}
+
 .dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  position: absolute;
-  bottom: 8px;
+  background-color: grey;
 }
 
 .dot.cardio { background-color: #e955df; left: 6px; }
