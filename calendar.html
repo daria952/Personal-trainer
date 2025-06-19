@@ -103,7 +103,7 @@
       const grid = document.getElementById("calendarGrid");
       grid.innerHTML = "";
       document.getElementById("currentMonth").textContent = 
-        `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
+        ${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear};
       
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -112,16 +112,16 @@
       for (let i = 0; i < firstDay; i++) {
         const el = document.createElement("div");
         el.className = "day other-month";
-        el.innerHTML = `<span>${daysInPrevMonth - firstDay + i + 1}</span>`;
+        el.innerHTML = <span>${daysInPrevMonth - firstDay + i + 1}</span>;
         grid.appendChild(el);
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
         const el = document.createElement("div");
         el.className = "day";
-        el.innerHTML = `<span>${day}</span>`;
+        el.innerHTML = <span>${day}</span>;
 
-        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateStr = ${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')};
         let dayWorkouts = workouts.filter(w => w.date === dateStr);
         if (selectedTypeFilter !== "All") {
           dayWorkouts = dayWorkouts.filter(w => w.type === selectedTypeFilter);
@@ -131,24 +131,17 @@
           el.classList.add("has-workout");
           if (dayWorkouts.length === 1) {
             const type = dayWorkouts[0].type;
-            el.classList.add("single", `bg-${type.toLowerCase()}`);
-            let dotContainer = el.querySelector('.dot-container');
-if (!dotContainer) {
-  dotContainer = document.createElement("div");
-  dotContainer.className = "dot-container";
-  el.appendChild(dotContainer);
-}
-
-const dot = document.createElement("div");
-dot.className = `dot ${type.toLowerCase()}`;
-dotContainer.appendChild(dot);
+            el.classList.add("single", bg-${type.toLowerCase()});
+            const dot = document.createElement("div");
+            dot.className = dot ${type.toLowerCase()};
+            el.appendChild(dot);
           } else {
             const used = new Set();
             dayWorkouts.slice(0, 5).forEach(w => {
               const type = w.type.toLowerCase();
               if (!used.has(type)) {
                 const dot = document.createElement("div");
-                dot.className = `dot ${type}`;
+                dot.className = dot ${type};
                 el.appendChild(dot);
                 used.add(type);
               }
@@ -173,13 +166,13 @@ dotContainer.appendChild(dot);
       selectedWorkoutId = null;
 
       modalDate.textContent = new Date(date).toDateString();
-      modalInfo.innerHTML = list.map(w => `
+      modalInfo.innerHTML = list.map(w => 
         <div class="workout-detail bg-${w.type.toLowerCase()}" data-id="${w.id}">
           <p><strong>Type:</strong> ${w.type}</p>
           <p><strong>Time:</strong> ${w.time}</p>
           <p><strong>Note:</strong> ${w.note || "No notes"}</p>
         </div>
-      `).join("");
+      ).join("");
 
       document.querySelectorAll(".workout-detail").forEach(detail => {
         detail.addEventListener("click", () => {
@@ -238,4 +231,4 @@ dotContainer.appendChild(dot);
     });
   </script>
 </body>
-</html>
+</html>/
