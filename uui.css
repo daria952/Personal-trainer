@@ -258,3 +258,47 @@ footer {
     margin-top: 0.5rem;
   }
 }
+
+
+@media (max-width: 400px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-card {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .modal-content {
+    padding: 10px;
+    width: 95%;
+  }
+
+  nav a, nav button {
+    font-size: 0.8rem;
+  }
+
+  main, section {
+    padding: 1rem;
+  }
+
+  .bar-wrapper {
+    width: 95% !important;
+  }
+
+  form input, form select, form textarea {
+    font-size: 0.85rem;
+  }
+
+  .form-container {
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .calendar-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
