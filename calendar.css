@@ -99,7 +99,6 @@ main {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 10px;
-  overflow-x: auto;
 }
 
 /* ====== Отдельный день ====== */
@@ -111,9 +110,6 @@ main {
   position: relative;
   border: 1px solid #333;
   transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 .day:hover {
@@ -144,26 +140,12 @@ main {
 }
 
 /* ====== Индикаторы тренировок ====== */
-
-.dot-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding-top: 15px;
-}
-
-
 .dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: grey;
+  position: absolute;
+  bottom: 8px;
 }
 
 .dot.cardio { background-color: #e955df; left: 6px; }
@@ -172,6 +154,7 @@ main {
 .dot.yoga { background-color: #ffb300; left: 54px; }
 .dot.functional { background-color: #09dfd1; left: 70px; }
 .dot.hiit { background-color: #ffffff; left: 86px; }
+
 
 /* ====== Модалка ====== */
 .modal {
@@ -189,14 +172,10 @@ main {
   margin: 5% auto;
   border-radius: 12px;
   width: 90%;
-  max-width: 500px;
+  max-width: 450px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
   position: relative;
   animation: fadeIn 0.3s ease;
-  max-height: 80vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 @keyframes fadeIn {
@@ -250,46 +229,19 @@ footer {
 }
 
 /* ====== Адаптив ====== */
-@media (max-width: 1024px) {
-  .day {
-    min-height: 90px;
-    font-size: 0.95rem;
-    padding: 0.4rem;
-  }
-
-  .dot {
-    width: 9px;
-    height: 9px;
-  }
-}
-
 @media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
   .calendar-controls {
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: flex-start;
   }
-
-  .calendar-grid {
-    gap: 6px;
-  }
-
-  .day {
-    min-height: 80px;
-    font-size: 0.85rem;
-    padding: 0.3rem;
-  }
-
-  .dot {
-    width: 7px;
-    height: 7px;
-  }
-
   header {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;
   }
-
   nav {
     justify-content: center;
     flex-wrap: wrap;
@@ -297,49 +249,50 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .day {
-    min-height: 70px;
-    font-size: 0.75rem;
-    padding: 0.25rem;
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+@media (max-width: 400px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .dot {
-    width: 6px;
-    height: 6px;
-    bottom: 5px;
+  .stat-card {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .modal-content {
+    padding: 10px;
+    width: 95%;
   }
 
   nav a, nav button {
     font-size: 0.8rem;
   }
 
-  .calendar-nav button {
-    padding: 0.4rem 0.8rem;
+  main, section {
+    padding: 1rem;
+  }
+
+  .bar-wrapper {
+    width: 95% !important;
+  }
+
+  form input, form select, form textarea {
     font-size: 0.85rem;
   }
 
-  .calendar-nav span {
-    font-size: 1rem;
+  .form-container {
+    padding: 1.2rem;
   }
 }
 
 @media (max-width: 320px) {
-  .day {
-    min-height: 65px;
-    font-size: 0.7rem;
-    padding: 0.2rem;
-  }
-
-  .dot {
-    width: 5px;
-    height: 5px;
-    bottom: 4px;
+  .calendar-grid {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
-
-#modalWorkoutInfo {
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
