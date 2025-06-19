@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:wght@400..700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход</title>
+  <!-- Добавляем Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Enter</h2>
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="Enter email" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter password" required>
+
+      <button type="submit">Enter</button>
+    </form>
+    <p>No account? <a href="registration.html">Registration</a></p>
+    <div id="error-message" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
+  </div>
+
+  <script>
+    // Конфигурация Firebase (должна совпадать с регистрацией)
+    const firebaseConfig = {
+  apiKey: "AIzaSyA1stPt6qkiFd7qbsCFiQbVvEaXVI5nEXY",
+  authDomain: "coach-c8230.firebaseapp.com",
+  projectId: "coach-c8230",
+  storageBucket: "coach-c8230.firebasestorage.app",
+  messagingSenderId: "1039652151627",
+  appId: "1:1039652151627:web:f8a097a5182c5fbc2f08ce",
+  measurementId: "G-Q1PGPW764N"
+};
+
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Обработка формы входа
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('error-message');
+      
+      // Скрываем предыдущие ошибки
+      errorElement.style.display = 'none';
+      
+      // Пытаемся войти
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Успешный вход
+          const user = userCredential.user;
+          window.location.href = "profile.html"; // Перенаправление после входа
+        })
+        .catch((error) => {
+          // Показываем ошибку
+          errorElement.textContent = getErrorMessage(error.code);
+          errorElement.style.display = 'block';
+        });
+    });
+
+    // Функция для преобразования кода ошибки в читаемое сообщение
+    function getErrorMessage(errorCode) {
+      switch(errorCode) {
+        case 'auth/invalid-email':
+          return 'Wrong format email';
+        case 'auth/user-disabled':
+          return 'Account is off';
+        case 'auth/user-not-found':
+          return 'User is not found';
+        case 'auth/wrong-password':
+          return 'Wrong password';
+        default:
+          return 'Error. Once again.';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+  <link rel="stylesheet" href="profile.css">
+  <link href="https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:wght@400..700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div>
+    <header>
+      <h1>PERSONAL TRAINER</h1>
+      <nav>
+        <a href="uui.html">WORKOUT</a>
+        <a href="calendar.html">CALENDAR</a>
+        <a href="progress.html">PROGRESS</a>
+        <a href="profile.html">PROFILE</a>
+        <button id="logoutBtn" style="background: none; border: none; color: white; cursor: pointer; font-family: 'Orbitron'; font-weight: bold;">LOGOUT</button>
+      </nav>
+    </header>
+
+    <main>
+      <h2 id="welcomeText">HELLO!</h2>
+      <img src="1c4f6604fdeab6498dc99a622894f7ac.jpg" alt="avatar" />
+
+      <section class="stats">
+        <div class="stat-card">
+          <h4 id="workoutsCount">0</h4>
+          <p>Workouts</p>
+        </div>
+        <div class="stat-card">
+          <h4 id="streakCount">0</h4>
+          <p>Days Streak</p>
+        </div>
+        <div class="stat-card">
+          <h4 id="goalPercent">0%</h4>
+          <p>Goal Reached</p>
+        </div>
+      </section>
+
+      <button id="addWorkoutBtn" style="margin-top: 15px;">Add workout</button>
+
+      <section class="about">
+        <h3>About You</h3>
+        <p id="goalDescription">Loading...</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1stPt6qkiFd7qbsCFiQbVvEaXVI5nEXY",
+      authDomain: "coach-c8230.firebaseapp.com",
+      projectId: "coach-c8230",
+      storageBucket: "coach-c8230.firebasestorage.app",
+      messagingSenderId: "1039652151627",
+      appId: "1:1039652151627:web:f8a097a5182c5fbc2f08ce",
+      measurementId: "G-Q1PGPW764N"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        loadUserData(user.uid);
+      }
+    });
+
+    async function loadUserData(userId) {
+      try {
+        const userRef = db.collection("users").doc(userId);
+        const userDoc = await userRef.get();
+        const goal = userDoc.data().goal || "Поддержание формы";
+
+        const goalDescriptions = {
+          "Похудение": "You are focused on losing weight. Keep burning calories and pushing forward!",
+          "Набор веса": "You are working to gain mass. Strength and consistency will get you there!",
+          "Поддержание формы": "You are focused on maintaining your shape. Keep tracking your progress and stay motivated!"
+        };
+
+        document.getElementById("goalDescription").textContent = goalDescriptions[goal] || goalDescriptions["Поддержание формы"];
+        document.getElementById("welcomeText").textContent = `HELLO, ${userDoc.data().name || 'Athlete'}!`;
+
+        loadWorkouts(userId, goal);
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      }
+    }
+
+    async function loadWorkouts(userId, goal) {
+      try {
+        const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+        const snapshot = await db.collection("users").doc(userId).collection("workouts")
+          .where("createdAt", ">=", firstDayOfMonth)
+          .get();
+
+        const workouts = [];
+        const workoutDates = new Set();
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          workouts.push(data);
+          if (data.createdAt) {
+            const dateStr = data.createdAt.toDate().toISOString().split('T')[0];
+            workoutDates.add(dateStr);
+          }
+        });
+
+        const sortedDates = Array.from(workoutDates).sort();
+        const streak = calculateCurrentStreak(sortedDates);
+        updateStats(workouts, streak, goal);
+      } catch (error) {
+        console.error("Error loading workouts:", error);
+      }
+    }
+
+    function calculateCurrentStreak(dates) {
+      if (dates.length === 0) return 0;
+      const sorted = [...dates].sort((a, b) => new Date(b) - new Date(a));
+      let streak = 0;
+      const oneDay = 24 * 60 * 60 * 1000;
+      const today = new Date().toISOString().split('T')[0];
+
+      if (sorted[0] === today) {
+        streak = 1;
+      } else {
+        return 0;
+      }
+
+      for (let i = 1; i < sorted.length; i++) {
+        const prev = new Date(sorted[i - 1]);
+        const current = new Date(sorted[i]);
+        const diff = Math.round((prev - current) / oneDay);
+        if (diff === 1) {
+          streak++;
+        } else if (diff > 1) {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function updateStats(workouts, streak, goal) {
+      const goalMap = {
+        "Похудение": 18,
+        "Набор веса": 14,
+        "Поддержание формы": 10
+      };
+
+      const target = goalMap[goal] || 10;
+      const percent = Math.min(Math.round((workouts.length / target) * 100), 100);
+
+      document.getElementById("workoutsCount").textContent = workouts.length;
+      document.getElementById("streakCount").textContent = streak;
+      document.getElementById("goalPercent").textContent = `${percent}%`;
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(() => window.location.href = "login.html");
+    });
+
+    document.getElementById('addWorkoutBtn').addEventListener('click', () => {
+      window.location.href = "uui.html";
+    });
+  </script>
+</body>
+</html>

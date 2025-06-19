@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Activity Calendar</title>
+  <link rel="stylesheet" href="calendar.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>PERSONAL TRAINER</h1>
+    <nav>
+      <a href="uui.html">WORKOUT</a>
+      <a href="calendar.html">CALENDAR</a>
+      <a href="progress.html">PROGRESS</a>
+      <a href="profile.html">PROFILE</a>
+      
+      <button id="logoutBtn">LOGOUT</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="calendar-controls">
+      <div class="calendar-nav">
+        <button id="prevMonth">&larr;</button>
+        <span id="currentMonth">June 2025</span>
+        <button id="nextMonth">&rarr;</button>
+      </div>
+      <div class="filters">
+        <label for="typeFilter">Filter by type:</label>
+        <select id="typeFilter">
+          <option value="All">All</option>
+          <option value="Cardio">Cardio</option>
+          <option value="Strength">Strength</option>
+          <option value="Stretching">Stretching</option>
+          <option value="Yoga">Yoga</option>
+          <option value="Functional">Functional</option>
+          <option value="HIIT">HIIT</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="calendar-grid" id="calendarGrid"></section>
+
+    <div id="workoutModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 id="modalWorkoutDate"></h3>
+        <div id="modalWorkoutInfo"></div>
+        <p style="margin-top: 10px; color: #f44336; font-weight: bold;">Click a workout to select it for deletion</p>
+        <button id="confirmDeleteBtn">Delete this workout</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; TRAIN HARD. LIVE BETTER.</p>
+  </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1stPt6qkiFd7qbsCFiQbVvEaXVI5nEXY",
+      authDomain: "coach-c8230.firebaseapp.com",
+      projectId: "coach-c8230",
+      storageBucket: "coach-c8230.firebasestorage.app",
+      messagingSenderId: "1039652151627",
+      appId: "1:1039652151627:web:f8a097a5182c5fbc2f08ce",
+      measurementId: "G-Q1PGPW764N"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let workouts = [];
+    let selectedWorkoutId = null;
+    let selectedTypeFilter = "All";
+
+    auth.onAuthStateChanged((user) => {
+      if (!user) window.location.href = "login.html";
+      else loadWorkouts(user.uid);
+    });
+
+    async function loadWorkouts(userId) {
+      try {
+        const snapshot = await db.collection("users").doc(userId).collection("workouts").get();
+        workouts = [];
+        snapshot.forEach(doc => workouts.push({ id: doc.id, ...doc.data() }));
+        renderCalendar();
+      } catch (error) {
+        console.error("Workout download error:", error);
+      }
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById("calendarGrid");
+      grid.innerHTML = "";
+      document.getElementById("currentMonth").textContent = 
+        `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
+      
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement("div");
+        el.className = "day other-month";
+        el.innerHTML = `<span>${daysInPrevMonth - firstDay + i + 1}</span>`;
+        grid.appendChild(el);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const el = document.createElement("div");
+        el.className = "day";
+        el.innerHTML = `<span>${day}</span>`;
+
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        let dayWorkouts = workouts.filter(w => w.date === dateStr);
+        if (selectedTypeFilter !== "All") {
+          dayWorkouts = dayWorkouts.filter(w => w.type === selectedTypeFilter);
+        }
+
+        if (dayWorkouts.length > 0) {
+          el.classList.add("has-workout");
+          if (dayWorkouts.length === 1) {
+            const type = dayWorkouts[0].type;
+            el.classList.add("single", `bg-${type.toLowerCase()}`);
+            const dot = document.createElement("div");
+            dot.className = `dot ${type.toLowerCase()}`;
+            el.appendChild(dot);
+          } else {
+            const used = new Set();
+            dayWorkouts.slice(0, 5).forEach(w => {
+              const type = w.type.toLowerCase();
+              if (!used.has(type)) {
+                const dot = document.createElement("div");
+                dot.className = `dot ${type}`;
+                el.appendChild(dot);
+                used.add(type);
+              }
+            });
+          }
+          el.addEventListener("click", () => showWorkoutDetails(dateStr, dayWorkouts));
+        }
+
+        const today = new Date();
+        if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+          el.classList.add("today");
+        }
+
+        grid.appendChild(el);
+      }
+    }
+
+    function showWorkoutDetails(date, list) {
+      const modal = document.getElementById("workoutModal");
+      const modalDate = document.getElementById("modalWorkoutDate");
+      const modalInfo = document.getElementById("modalWorkoutInfo");
+      selectedWorkoutId = null;
+
+      modalDate.textContent = new Date(date).toDateString();
+      modalInfo.innerHTML = list.map(w => `
+        <div class="workout-detail bg-${w.type.toLowerCase()}" data-id="${w.id}">
+          <p><strong>Type:</strong> ${w.type}</p>
+          <p><strong>Time:</strong> ${w.time}</p>
+          <p><strong>Note:</strong> ${w.note || "No notes"}</p>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".workout-detail").forEach(detail => {
+        detail.addEventListener("click", () => {
+          document.querySelectorAll(".workout-detail").forEach(d => d.style.borderColor = "#ccc");
+          detail.style.borderColor = "#f44336";
+          selectedWorkoutId = detail.getAttribute("data-id");
+        });
+      });
+
+      modal.style.display = "block";
+    }
+
+    document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user || !selectedWorkoutId) return alert("Select a workout first.");
+      if (!confirm("Are you sure?")) return;
+      try {
+        await db.collection("users").doc(user.uid).collection("workouts").doc(selectedWorkoutId).delete();
+        selectedWorkoutId = null;
+        document.getElementById("workoutModal").style.display = "none";
+        loadWorkouts(user.uid);
+      } catch (e) {
+        alert("Failed to delete workout.");
+      }
+    });
+
+    document.querySelector(".close").addEventListener("click", () => {
+      document.getElementById("workoutModal").style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === document.getElementById("workoutModal")) {
+        document.getElementById("workoutModal").style.display = "none";
+      }
+    });
+
+    document.getElementById("typeFilter").addEventListener("change", e => {
+      selectedTypeFilter = e.target.value;
+      renderCalendar();
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      auth.signOut().then(() => window.location.href = "login.html");
+    });
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      currentMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      if (currentMonth === 11) currentYear--;
+      renderCalendar();
+    });
+
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      currentMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+      if (currentMonth === 0) currentYear++;
+      renderCalendar();
+    });
+  </script>
+</body>
+</html>

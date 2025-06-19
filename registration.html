@@ -1,0 +1,87 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:wght@400..700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./regisration.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REGISTRATION</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="form-container">
+    <h2>REGISTRATION</h2>
+    <form id="registrationForm">
+      <label>Name</label>
+      <input id="name" type="text" placeholder="Enter your name" required>
+
+      <label>Email</label>
+      <input id="email" type="email" placeholder="Enter email" required>
+
+      <label>Password</label>
+      <input id="password" type="password" placeholder="Enter password" minlength="6" required>
+
+      <label>Goal</label>
+      <select id="goal">
+        <option value="Weight loss">Weight loss</option>
+        <option value="Mass gain">Mass gain</option>
+        <option value="Keeping fit">Keeping fit</option>
+      </select>
+
+      <button type="submit">Sign up</button>
+    </form>
+    <p>Do you already have an account? <a href="login.html">Enter</a></p>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1stPt6qkiFd7qbsCFiQbVvEaXVI5nEXY",
+      authDomain: "coach-c8230.firebaseapp.com",
+      projectId: "coach-c8230",
+      storageBucket: "coach-c8230.firebasestorage.app",
+      messagingSenderId: "1039652151627",
+      appId: "1:1039652151627:web:f8a097a5182c5fbc2f08ce",
+      measurementId: "G-Q1PGPW764N"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Registration handler
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const goal = document.getElementById('goal').value;
+
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        await db.collection("users").doc(user.uid).set({
+          name: name,
+          email: email,
+          goal: goal,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert("Registration was successful!");
+        window.location.href = "profile.html";
+      } catch (error) {
+        console.error("Registration error:", error);
+        alert(`Registration error: ${error.message}`);
+      }
+    });
+  </script>
+</body>
+</html>

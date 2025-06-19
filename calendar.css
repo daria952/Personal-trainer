@@ -1,0 +1,255 @@
+/* ===== Основные базовые стили ===== */
+body {
+  font-family: 'Orbitron', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #0d0d0d;
+  color: #f5f5f5;
+}
+
+/* ====== Хедер ====== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #111;
+  color: #00e5ff;
+  box-shadow: 0 2px 10px rgba(0, 229, 255, 0.1);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+}
+
+nav a, nav button {
+  color: #00e5ff;
+  text-decoration: none;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.3s ease;
+}
+
+nav a:hover, nav button:hover {
+  color: #1de9b6;
+  transform: scale(1.05);
+}
+
+/* ====== Контент ====== */
+main {
+  padding: 2rem 1rem;
+}
+
+/* ====== Панель навигации и фильтры ====== */
+.calendar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.calendar-nav button {
+  background-color: #1a1a1a;
+  color: #00e5ff;
+  border: 1px solid #00e5ff;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.calendar-nav button:hover {
+  background-color: #00e5ff;
+  color: #0d0d0d;
+}
+
+.calendar-nav span {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* ====== Фильтр ====== */
+.filters label, .filters select {
+  font-size: 0.95rem;
+}
+
+.filters select {
+  background-color: #1a1a1a;
+  color: #f5f5f5;
+  border: 1px solid #333;
+  padding: 0.4rem;
+  border-radius: 6px;
+}
+
+/* ====== Сетка календаря ====== */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+/* ====== Отдельный день ====== */
+.day {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  min-height: 100px;
+  padding: 0.5rem;
+  position: relative;
+  border: 1px solid #333;
+  transition: all 0.2s ease;
+}
+
+.day:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.15);
+}
+
+.day span {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* ====== Состояния ====== */
+.day.other-month {
+  opacity: 0.3;
+}
+
+.day.today {
+  border: 2px solid #f50057;
+}
+
+.day.has-workout {
+  border: 2px solid #1de9b6;
+}
+
+.day.has-workout.today {
+  border: 2px solid #ff9100;
+}
+
+/* ====== Индикаторы тренировок ====== */
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 8px;
+}
+
+.dot.cardio { background-color: #e955df; left: 6px; }
+.dot.strength { background-color: #2979ff; left: 22px; }
+.dot.stretching { background-color: #00e632; left: 38px; }
+.dot.yoga { background-color: #ffb300; left: 54px; }
+.dot.functional { background-color: #09dfd1; left: 70px; }
+.dot.hiit { background-color: #ffffff; left: 86px; }
+
+
+/* ====== Модалка ====== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+  background-color: #121212;
+  color: #fff;
+  padding: 20px;
+  margin: 5% auto;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: #888;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #fff;
+}
+
+.workout-detail {
+  background-color: #1e1e1e;
+  border-left: 4px solid #00e5ff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.workout-detail:hover {
+  border-left-color: #f50057;
+}
+
+/* ====== Цвета по типам тренировок ====== */
+.workout-detail.bg-cardio { border-left-color: #e955df; }
+.workout-detail.bg-strength { border-left-color: #2979ff; }
+.workout-detail.bg-stretching { border-left-color: #00e632; }
+.workout-detail.bg-yoga { border-left-color: #ffb300; }
+.workout-detail.bg-functional { border-left-color: #09dfd1; }
+.workout-detail.bg-hiit { border-left-color: #ffffff; }
+
+/* ====== Футер ====== */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #111;
+  color: #00e5ff;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #222;
+}
+
+/* ====== Адаптив ====== */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .calendar-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  header {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  nav {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

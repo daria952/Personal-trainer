@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Progress</title>
+  <link rel="stylesheet" href="progress.css">
+  <link href="https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:wght@400..700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>PERSONAL TRAINER</h1>
+    <nav>
+      <a href="uui.html">WORKOUT</a>
+      <a href="calendar.html">CALENDAR</a>
+      <a href="progress.html">PROGRESS</a>
+      <a href="profile.html">PROFILE</a>
+      <button id="logoutBtn" style="background: none; border: none; color: white; cursor: pointer; font-family: 'Orbitron'; font-weight: bold;">LOGOUT</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="goal">
+      <h2>Your Goal</h2>
+      <p id="goalText">Loading...</p>
+    </section>
+
+    <section class="progress-bar">
+      <h3>Progress</h3>
+      <div class="bar-wrapper">
+        <div class="bar-fill" id="progressBar"></div>
+      </div>
+      <p id="progressText">0% completed (0/0)</p>
+    </section>
+
+    <section class="stats">
+      <div class="stat-card">
+        <h4 id="workoutsCount">0</h4>
+        <p>Workouts</p>
+      </div>
+      <div class="stat-card">
+        <h4 id="streakCount">0</h4>
+        <p>Days Streak</p>
+      </div>
+      <div class="stat-card">
+        <h4 id="goalPercent">0%</h4>
+        <p>Goal Progress</p>
+      </div>
+    </section>
+
+    <section class="quote">
+      <p>"Progress is progress, no matter how small!"</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; TRAIN HARD. LIVE BETTER.</p>
+  </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1stPt6qkiFd7qbsCFiQbVvEaXVI5nEXY",
+      authDomain: "coach-c8230.firebaseapp.com",
+      projectId: "coach-c8230",
+      storageBucket: "coach-c8230.firebasestorage.app",
+      messagingSenderId: "1039652151627",
+      appId: "1:1039652151627:web:f8a097a5182c5fbc2f08ce",
+      measurementId: "G-Q1PGPW764N"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        loadWorkouts(user.uid);
+      }
+    });
+
+    async function loadWorkouts(userId) {
+      try {
+        const userRef = db.collection("users").doc(userId);
+        const userDoc = await userRef.get();
+        const userGoal = userDoc.data().goal || "Keeping fit";
+
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const snapshot = await userRef
+          .collection("workouts")
+          .where("createdAt", ">=", firstDayOfMonth)
+          .get();
+
+        const workouts = [];
+        const workoutDates = new Set();
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          workouts.push(data);
+          const dateStr = data.createdAt.toDate().toISOString().split('T')[0];
+          workoutDates.add(dateStr);
+        });
+
+        const sortedDates = Array.from(workoutDates).sort();
+        const currentStreak = calculateCurrentStreak(sortedDates);
+
+        updateProgress(workouts, userGoal, currentStreak);
+      } catch (error) {
+        console.error("Error loading workouts:", error);
+      }
+    }
+
+    function calculateCurrentStreak(dates) {
+      if (dates.length === 0) return 0;
+
+      const sorted = [...dates].sort((a, b) => new Date(b) - new Date(a));
+      let streak = 0;
+      const oneDay = 24 * 60 * 60 * 1000;
+      const today = new Date().toISOString().split('T')[0];
+
+      if (sorted[0] === today) {
+        streak = 1;
+      } else {
+        return 0;
+      }
+
+      for (let i = 1; i < sorted.length; i++) {
+        const prev = new Date(sorted[i - 1]);
+        const current = new Date(sorted[i]);
+        const diff = Math.round((prev - current) / oneDay);
+        if (diff === 1) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function updateProgress(workouts, goal, streak) {
+      let targetWorkouts = 0;
+      let goalKg = 0;
+      let bonusTypes = [];
+
+      switch (goal) {
+        case "Weight loss":
+          targetWorkouts = 18;
+          goalKg = -4;
+          bonusTypes = ["Cardio", "Functional", "HIIT"];
+          break;
+        case "Mass gain":
+          targetWorkouts = 14;
+          goalKg = 3;
+          bonusTypes = ["Strength", "Functional"];
+          break;
+        case "Keeping fit":
+        default:
+          targetWorkouts = 10;
+          goalKg = 0;
+          bonusTypes = ["Yoga", "Stretching", "Cardio"];
+          break;
+      }
+
+      let totalPoints = 0;
+      workouts.forEach(w => {
+        if (bonusTypes.includes(w.type)) {
+          totalPoints += 1;
+        } else {
+          totalPoints += 0.5;
+        }
+      });
+
+      const percent = Math.min(Math.round((totalPoints / targetWorkouts) * 100), 100);
+
+      document.getElementById("progressBar").style.width = `${percent}%`;
+      document.getElementById("progressText").textContent = `${percent}% completed (${workouts.length}/${targetWorkouts})`;
+      document.getElementById("goalPercent").textContent = `${percent}%`;
+      document.getElementById("workoutsCount").textContent = workouts.length;
+      document.getElementById("streakCount").textContent = streak;
+      document.getElementById("goalText").textContent = `${goalKg > 0 ? '+' : ''}${goalKg} kg goal, ${targetWorkouts} workouts`;
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    });
+  </script>
+</body>
+</html>
