@@ -99,6 +99,7 @@ main {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 10px;
+  overflow-x: auto;
 }
 
 /* ====== Отдельный день ====== */
@@ -110,6 +111,9 @@ main {
   position: relative;
   border: 1px solid #333;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .day:hover {
@@ -154,7 +158,6 @@ main {
 .dot.yoga { background-color: #ffb300; left: 54px; }
 .dot.functional { background-color: #09dfd1; left: 70px; }
 .dot.hiit { background-color: #ffffff; left: 86px; }
-
 
 /* ====== Модалка ====== */
 .modal {
@@ -229,19 +232,46 @@ footer {
 }
 
 /* ====== Адаптив ====== */
-@media (max-width: 768px) {
-  .calendar-grid {
-    grid-template-columns: repeat(4, 1fr);
+@media (max-width: 1024px) {
+  .day {
+    min-height: 90px;
+    font-size: 0.95rem;
+    padding: 0.4rem;
   }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+  }
+}
+
+@media (max-width: 768px) {
   .calendar-controls {
     flex-direction: column;
-    align-items: flex-start;
+    gap: 0.5rem;
   }
+
+  .calendar-grid {
+    gap: 6px;
+  }
+
+  .day {
+    min-height: 80px;
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+  }
+
   header {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;
   }
+
   nav {
     justify-content: center;
     flex-wrap: wrap;
@@ -249,51 +279,42 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .calendar-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-
-@media (max-width: 400px) {
-  .calendar-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .day {
+    min-height: 70px;
+    font-size: 0.75rem;
+    padding: 0.25rem;
   }
 
-  .stat-card {
-    width: 100%;
-    font-size: 0.9rem;
-  }
-
-  .modal-content {
-    padding: 10px;
-    width: 95%;
+  .dot {
+    width: 6px;
+    height: 6px;
+    bottom: 5px;
   }
 
   nav a, nav button {
     font-size: 0.8rem;
   }
 
-  main, section {
-    padding: 1rem;
-  }
-
-  .bar-wrapper {
-    width: 95% !important;
-  }
-
-  form input, form select, form textarea {
+  .calendar-nav button {
+    padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
   }
 
-  .form-container {
-    padding: 1.2rem;
+  .calendar-nav span {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 320px) {
-  .calendar-grid {
-    grid-template-columns: repeat(1, 1fr);
+  .day {
+    min-height: 65px;
+    font-size: 0.7rem;
+    padding: 0.2rem;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    bottom: 4px;
   }
 }
-
