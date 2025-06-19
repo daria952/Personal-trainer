@@ -189,10 +189,14 @@ main {
   margin: 5% auto;
   border-radius: 12px;
   width: 90%;
-  max-width: 450px;
+  max-width: 500px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
   position: relative;
   animation: fadeIn 0.3s ease;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes fadeIn {
@@ -332,3 +336,10 @@ footer {
     bottom: 4px;
   }
 }
+
+#modalWorkoutInfo {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
