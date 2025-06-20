@@ -132,9 +132,18 @@
           if (dayWorkouts.length === 1) {
             const type = dayWorkouts[0].type;
             el.classList.add("single", `bg-${type.toLowerCase()}`);
-            const dot = document.createElement("div");
-            dot.className = `dot ${type.toLowerCase()}`;
-            el.appendChild(dot);
+            const dotContainer = document.createElement("div");
+dotContainer.className = "dot-container";
+
+dayWorkouts.slice(0, 6).forEach(w => {
+  const type = w.type.toLowerCase();
+  const dot = document.createElement("div");
+  dot.className = `dot ${type}`;
+  dotContainer.appendChild(dot);
+});
+
+el.appendChild(dotContainer);
+
           } else {
             const used = new Set();
             dayWorkouts.slice(0, 5).forEach(w => {
