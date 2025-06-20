@@ -114,6 +114,10 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
 }
 
 .day:hover {
@@ -148,8 +152,6 @@ main {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  position: absolute;
-  bottom: 8px;
 }
 
 .dot.cardio { background-color: #e955df; left: 6px; }
@@ -158,6 +160,17 @@ main {
 .dot.yoga { background-color: #ffb300; left: 54px; }
 .dot.functional { background-color: #09dfd1; left: 70px; }
 .dot.hiit { background-color: #ffffff; left: 86px; }
+
+.dot-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 6px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
 
 /* ====== Модалка ====== */
 .modal {
@@ -317,4 +330,10 @@ footer {
     height: 5px;
     bottom: 4px;
   }
+}
+
+#modalWorkoutInfo {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 15px;
 }
